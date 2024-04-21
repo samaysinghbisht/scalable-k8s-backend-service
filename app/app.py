@@ -64,31 +64,29 @@ def create_dynamodb_table():
         else:
             print(e)
 
-# Endpoint to send message to SQS
-@app.route('/send', methods=['POST'])
-def send_message():
+# Endpoint to send message to SQS and put it in the DynamoDB table
+@app.route('/process_message', methods=['POST'])
+def process_message():
+    # Send the message to SQS
     message_body = request.json
-    response = sqs.send_message(QueueUrl=queue_url, MessageBody=str(message_body))
-    return jsonify(response), 200
+    sqs.send_message(QueueUrl=queue_url, MessageBody=str(message_body))
 
-# Endpoint to retrieve and store message from SQS to DynamoDB
-@app.route('/retrieve', methods=['GET'])
-def retrieve_message():
+    # Retrieve and process the message from SQS
     messages = sqs.receive_message(QueueUrl=queue_url, MaxNumberOfMessages=1)
     if 'Messages' in messages:
         for message in messages['Messages']:
-            message_body = message['Body']
-            print("Received:", message_body)
-            # Store message in DynamoDB
+            body = message['Body']
+            message_id = message['MessageId']
+            # Store the message in DynamoDB
             dynamodb.put_item(
                 TableName='Messages',
-                Item={'id': {'S': message['MessageId']}, 'content': {'S': message_body}}
+                Item={'id': {'S': message_id}, 'content': {'S': body}}
             )
-            # Delete message from queue
+            # Delete the message from the queue
             sqs.delete_message(QueueUrl=queue_url, ReceiptHandle=message['ReceiptHandle'])
-        return jsonify({"status": "success", "data": message_body}), 200
-    else:
-        return jsonify({"status": "no messages"}), 200
+            return jsonify({"status": "success", "data": body}), 200
+
+    return jsonify({"status": "error", "message": "No message received"}), 400
 
 if __name__ == '__main__':
     # Create resources on startup
