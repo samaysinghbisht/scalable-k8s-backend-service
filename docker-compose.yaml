@@ -26,6 +26,8 @@ services:
   #     - .env
   #   depends_on:
   #     - localstack
+  #   networks:
+  #     - localstack-net
 
 # networks:
 #   localstack-net:
