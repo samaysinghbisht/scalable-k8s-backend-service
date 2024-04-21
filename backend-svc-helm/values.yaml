@@ -43,22 +43,22 @@ resources:
 
 livenessProbe:
   httpGet:
-    path: /health
+    path: /
     port: 5001
 readinessProbe:
   httpGet:
-    path: /ready
+    path: /
     port: 5001
 
 autoscaling:
   enabled: true
   minReplicas: 1
   maxReplicas: 10
-  targetCPUUtilizationPercentage: 30
+  averageUtilization: 30
 
 env:
   AWS_DEFAULT_REGION: "us-east-1"
-  LOCALSTACK_URL: "http://192.168.64.1:4566"
+  LOCALSTACK_URL: "http://172.17.0.1:4566"
   LOCALSTACK_HOST: "localstack"
 
 secrets:
