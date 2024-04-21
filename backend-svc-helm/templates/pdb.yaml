@@ -1,0 +1,9 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "backend-svc-helm.fullname" . }}
+spec:
+  minAvailable: {{ .Values.autoscaling.minReplicas }}
+  selector:
+    matchLabels:
+      {{- include "backend-svc-helm.selectorLabels" . | nindent 6 }}

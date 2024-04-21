@@ -14,7 +14,7 @@ spec:
       labels:
         {{- include "backend-svc-helm.selectorLabels" . | nindent 8 }}
     spec:
-      hostNetwork: true
+      hostNetwork: false
       containers:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -38,3 +38,11 @@ spec:
             secretKeyRef:
               name: aws-secrets
               key: AWS_SECRET_ACCESS_KEY
+        # livenessProbe:
+        #   {{- toYaml .Values.livenessProbe | nindent 12 }}
+        # readinessProbe:
+        #   {{- toYaml .Values.readinessProbe | nindent 12 }}
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+
+
