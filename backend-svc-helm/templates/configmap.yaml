@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "backend-svc-helm.fullname" . }}-config
+data:
+  AWS_DEFAULT_REGION: {{ .Values.env.AWS_DEFAULT_REGION }}
+  LOCALSTACK_URL: {{ .Values.env.LOCALSTACK_URL }}
+  LOCALSTACK_HOST: {{ .Values.env.LOCALSTACK_HOST }}
