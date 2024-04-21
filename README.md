@@ -53,6 +53,7 @@ chmod +x installation.sh
                 - aws --endpoint-url=http://localhost:4566 dynamodb list-tables --profile dummy --region us-east-1 | cat
                 ```
                 You should see something like:
+                
                 <img width="869" alt="Screenshot 2024-04-22 at 01 06 04" src="https://github.com/samaysinghbisht/scalable-k8s-backend-service/assets/25420937/d0ebdad3-6cd0-4225-8473-9aa74d6c5500">
                 <img width="869" alt="Screenshot 2024-04-22 at 01 06 14" src="https://github.com/samaysinghbisht/scalable-k8s-backend-service/assets/25420937/c2815ea4-a909-4544-b541-b5c05735e616">
 
