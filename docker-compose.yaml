@@ -1,0 +1,32 @@
+# Uncomment the commented lines if you wish you deploy the application via docker-compose
+
+version: '3.8'
+
+services:
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "0.0.0.0:4566:4566"  # Default edge port
+    env_file:
+      - .env
+    environment:
+      - DEBUG=1
+      - PERSISTENCE=1
+    volumes:
+      - "${LOCALSTACK_VOLUME_DIR:-./.localstack_volume}:/var/lib/localstack"  # Persist data
+      - "/var/run/docker.sock:/var/run/docker.sock" # Mounts the docker socket
+    # networks:
+    #   - localstack-net
+
+  # app:
+  #   image: samay1993/backend-service:latest
+  #   ports:
+  #     - "5001:5001"
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     - localstack
+
+# networks:
+#   localstack-net:
+#     driver: bridge
