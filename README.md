@@ -25,7 +25,8 @@ chmod +x installation.sh
 - Kubernetes: Deploys the backend service ensuring it meets the scalability and availability requirements.
 
 ## Steps to deploy:
-1. Clone this repository using:
+
+1. **Clone this repository using:**
     ```
     git clone https://github.com/samaysinghbisht/scalable-k8s-backend-service.git
     cd  scalable-k8s-backend-service
@@ -38,7 +39,7 @@ chmod +x installation.sh
     LOCALSTACK_HOST=localstack
     LOCALSTACK_URL=http://localstack:4566
     ```
-2. Test the application:
+2. **Test the application:**
     * ### Via docker-compose:
         - Open docker-compose.yaml and uncomment the commented lines involving **networks** and **app** service and run below command
             ```
@@ -53,7 +54,7 @@ chmod +x installation.sh
                 - aws --endpoint-url=http://localhost:4566 dynamodb list-tables --profile dummy --region us-east-1 | cat
                 ```
                 You should see something like:
-                
+
                 <img width="869" alt="Screenshot 2024-04-22 at 01 06 04" src="https://github.com/samaysinghbisht/scalable-k8s-backend-service/assets/25420937/d0ebdad3-6cd0-4225-8473-9aa74d6c5500">
                 <img width="869" alt="Screenshot 2024-04-22 at 01 06 14" src="https://github.com/samaysinghbisht/scalable-k8s-backend-service/assets/25420937/c2815ea4-a909-4544-b541-b5c05735e616">
 
@@ -76,21 +77,21 @@ chmod +x installation.sh
             kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
             ```
         
-        Note: You may encounter a certificate validation issue for TLS due to the kubelet configuration. While you can resolve this by disabling TLS verification, it is important to note that this approach is not recommended for production environments. To disable TLS verification, you can add a specific flag in the "command" section of the "metrics-server" deployment. Please use the following commands to make this adjustment:
-        
-            kubectl edit deployment metrics-server -n kube-system
-            Now, just add a new flag '--kubelet-insecure-tls' under spec.template.spec.containers like below:
-                containers:
-                - name: metrics-server
-                image: registry.k8s.io/metrics-server/metrics-server:v0.7.1
-                args:
-                    - '--cert-dir=/tmp'
-                    - '--secure-port=10250'
-                    - '--kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname'
-                    - '--kubelet-use-node-status-port'
-                    - '--metric-resolution=15s'
-                    - '--kubelet-insecure-tls'
-        
+            Note: You may encounter a certificate validation issue for TLS due to the kubelet configuration. While you can resolve this by disabling TLS verification, it is important to note that this approach is not recommended for production environments. To disable TLS verification, you can add a specific flag in the "command" section of the "metrics-server" deployment. Please use the following commands to make this adjustment:
+            
+                kubectl edit deployment metrics-server -n kube-system
+                Now, just add a new flag '--kubelet-insecure-tls' under spec.template.spec.containers like below:
+                    containers:
+                    - name: metrics-server
+                    image: registry.k8s.io/metrics-server/metrics-server:v0.7.1
+                    args:
+                        - '--cert-dir=/tmp'
+                        - '--secure-port=10250'
+                        - '--kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname'
+                        - '--kubelet-use-node-status-port'
+                        - '--metric-resolution=15s'
+                        - '--kubelet-insecure-tls'
+            
         - Once LocalStack is operational, it's necessary to configure Kubernetes to connect with the LocalStack instance running in Docker Compose. This involves identifying the Docker host IP and updating the **values.env.LOCALSTACK_URL** in our Helm chart's. To accomplish this, you can run the provided Bash script as follows:
             ```
             chmod +x find-docker-host-ip.sh
@@ -102,22 +103,23 @@ chmod +x installation.sh
             helm install backend-svc backend-svc-helm -n backend-svc
             ```
 
-        It will install the backend service in a namespace "backend-svc"
+            It will install the backend service in a namespace "backend-svc"
+        
         - Now we can see the resources in *backend-svc* namespace by running below command:
             ```
             kubectl get all -n backend-svc
             ```
-        You should see list of below resources:
-        * pods
-        * deployment
-        * service
-        * replicaset
-        * HPA
-        
-        Make sure that your application is working correctly and able to connect with the localstack running in docker-compose, we can check the logs of deployment to make sure SQS queue and Dynamodb table was created, and to do that, please run the command:
-        ```
-        kubectl logs deployment.apps/backend-svc-backend-svc-helm -n backend-svc 
-        ```
+            You should see list of below resources:
+            * pods
+            * deployment
+            * service
+            * replicaset
+            * HPA
+            
+        - Make sure that your application is working correctly and able to connect with the localstack running in docker-compose, we can check the logs of deployment to make sure SQS queue and Dynamodb table was created, and to do that, please run the command:
+            ```
+            kubectl logs deployment.apps/backend-svc-backend-svc-helm -n backend-svc 
+            ```
    
         - Once everything is up and running we can port forward the service to our desired port and send a curl request to it and see the SQS and DynamoDB entries in action:
             ```
@@ -129,3 +131,41 @@ chmod +x installation.sh
             ```
         - You can verify the creation of the SQS and DynamoDB table like you did for docker-compose setup above.
 
+3. **Kubernetes Configuration Overview**
+    - **Scalability**
+        - **Horizontal Pod Autoscaler (HPA):** The backend service utilizes HPA to automatically scale the number of pods in response to observed CPU utilization. This ensures the service can handle increases in load without manual intervention.
+        - **Resource Requests and Limits:** Each pod is configured with specific CPU and memory requests and limits, optimizing resource allocation and ensuring the scheduler can make appropriate decisions about pod placement and scaling.
+        - **Testing HPA:** To observe the Horizontal Pod Autoscaler (HPA) in action and test its response, you can simulate increased load by sending multiple requests to the service. Execute the following command in your terminal:
+            ```
+            while sleep 0.01; do curl -X POST http://localhost:5002/process_message -H "Content-Type: application/json" -d '{"hello": "world"}'; done
+            ```
+
+            This command will continuously send messages to our backend service. To witness the Horizontal Pod Autoscaler (HPA) respond to this increased load, open a new terminal window and execute the following command:
+            ```
+            kubectl get hpa -n backend-svc -w
+            ```
+    - **High Availability**
+        - Multi-zone Deployment: 
+            + The current setup of our backend service is primarily designed for a local development environment, which inherently limits some aspects of high availability configurations, such as multi-zone deployments and pod anti-affinity rules.
+            + This feature is typically utilized in a production environment where the Kubernetes cluster spans multiple physical locations or availability zones in a cloud provider's network. Given our local environment setup, simulating true multi-zone capabilities isn't feasible. 
+        - Pod Anti-Affinity: 
+            + While crucial for ensuring high availability by distributing pods across different nodes, implementing pod anti-affinity in a local development setup with limited nodes might not be practical or necessary. In a production scenario, you would define pod anti-affinity rules to ensure that pods are scheduled on different nodes across different zones, significantly enhancing the service's fault tolerance and reducing the risk of simultaneous downtime.
+    - **Liveness Probe**
+        - In the current configuration of our Kubernetes deployment, specifically tailored for a local development environment, liveness probes have not been set up. 
+        - However for a production environment, where reliability and uptime are critical, adding liveness probes is recommended. You can configure them in your Helm chart as follows:
+            ```
+            livenessProbe:
+                httpGet:
+                    path: /health
+                    port: http
+                initialDelaySeconds: 30
+                periodSeconds: 10
+                timeoutSeconds: 5
+                failureThreshold: 3
+            ```
+    - **Pod Disruption Budget**:
+        - The Pod Disruption Budget (PDB) is an essential Kubernetes resource that helps maintain application availability during operational activities that can cause voluntary disruptions, such as cluster upgrades.
+        - Configuration for pdb is present in the provided HELM chart already.
+        - the Pod Disruption Budget is configured as follows:
+            - minAvailable: This key specifies the minimum number of instances of the application that must always be available during the disruption. In this setup, it is dynamically set based on the minReplicas value from the Helm chart's values file, ensuring that at least the specified number of pods are always running.
+            - Selector: The selector uses match labels to identify the pods that fall under this budget, ensuring that the policy applies only to the pods running the backend service.
