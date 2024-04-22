@@ -66,7 +66,7 @@ chmod +x installation.sh
         - Once you are done, take down everything by executing `docker-compose down -v`.
 
     * ### Via kubernetes:
-        - In a production environment, the deployment of applications to Kubernetes is typically automated through a CI/CD pipeline, so manually running the following commands isn't necessary. However, for local testing purposes, you can use the commands below to deploy the application manually:
+        - In a production environment, the deployment of applications to Kubernetes is typically automated through a CI/CD pipeline such as [GitLab](https://about.gitlab.com/), so manually running the following commands isn't necessary. However, for local testing purposes, you can use the commands below to deploy the application manually:
         - Ensure Helm is installed
         - Start localstack using docker-compose.yaml (make sure the app service and networks configuratiopn is commented) and run command:
             ```
@@ -172,6 +172,6 @@ chmod +x installation.sh
 
 4. **Future Enhancements and Recommendations**
     - **Monitoring and Observability:** Integrating something like Prometheus and Grafana for comprehensive metrics collection and real-time monitoring.
-    - **Security Enhancements:** In the current development environment, secrets management is not fully implemented to align with best practices. However, in a production setting, it is crucial to handle secrets more securely. Options for enhancing secrets management include encrypting them with tools like **Kubeseal** or utilizing a dedicated secrets manager.
+    - **Security Enhancements:** In the current development environment, secrets management is not fully implemented to align with best practices. However, in a production setting, it is crucial to handle secrets more securely. Options for enhancing secrets management include encrypting them with tools like [**Kubeseal**](https://github.com/bitnami-labs/sealed-secrets) or utilizing a dedicated secrets manager.
     - **CI/CD Integration**: Since this project is set up for a development environment, CI/CD pipelines are not currently implemented. However, for seamless deployment in a production setting, integrating CI/CD pipelines would be essential to automate the build, test, and deployment processes.
     - **GitOps Integration**: Using tools like FluxCD, leveraging Git repositories as the source of truth for infrastructure and application deployment, simplifying cluster management and synchronization.
