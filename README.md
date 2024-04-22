@@ -169,3 +169,9 @@ chmod +x installation.sh
         - the Pod Disruption Budget is configured as follows:
             - minAvailable: This key specifies the minimum number of instances of the application that must always be available during the disruption. In this setup, it is dynamically set based on the minReplicas value from the Helm chart's values file, ensuring that at least the specified number of pods are always running.
             - Selector: The selector uses match labels to identify the pods that fall under this budget, ensuring that the policy applies only to the pods running the backend service.
+
+4. **Future Enhancements and Recommendations**
+    - **Monitoring and Observability:** Integrating something like Prometheus and Grafana for comprehensive metrics collection and real-time monitoring.
+    - **Security Enhancements:** In the current development environment, secrets management is not fully implemented to align with best practices. However, in a production setting, it is crucial to handle secrets more securely. Options for enhancing secrets management include encrypting them with tools like **Kubeseal** or utilizing a dedicated secrets manager.
+    - **CI/CD Integration**: Since this project is set up for a development environment, CI/CD pipelines are not currently implemented. However, for seamless deployment in a production setting, integrating CI/CD pipelines would be essential to automate the build, test, and deployment processes.
+    - **GitOps Integration**: Using tools like FluxCD, leveraging Git repositories as the source of truth for infrastructure and application deployment, simplifying cluster management and synchronization.
