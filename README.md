@@ -39,7 +39,10 @@ chmod +x installation.sh
     LOCALSTACK_HOST=localstack
     LOCALSTACK_URL=http://localstack:4566
     ```
-2. **Test the application:**
+2. **Build the docker image:**
+    - Build the docker image by running the command while in root directory `docker build -t <DESIRED_NAME>:latest .`
+
+3. **Test the application:**
     * ### Via docker-compose:
         - Open docker-compose.yaml and uncomment the commented lines involving **networks** and **app** service and run below command
             ```
@@ -131,7 +134,7 @@ chmod +x installation.sh
             ```
         - You can verify the creation of the SQS and DynamoDB table like you did for docker-compose setup above.
 
-3. **Kubernetes Configuration Overview**
+4. **Kubernetes Configuration Overview**
     - **Scalability**
         - **Horizontal Pod Autoscaler (HPA):** The backend service utilizes HPA to automatically scale the number of pods in response to observed CPU utilization. This ensures the service can handle increases in load without manual intervention.
         - **Resource Requests and Limits:** Each pod is configured with specific CPU and memory requests and limits, optimizing resource allocation and ensuring the scheduler can make appropriate decisions about pod placement and scaling.
@@ -170,7 +173,7 @@ chmod +x installation.sh
             - minAvailable: This key specifies the minimum number of instances of the application that must always be available during the disruption. In this setup, it is dynamically set based on the minReplicas value from the Helm chart's values file, ensuring that at least the specified number of pods are always running.
             - Selector: The selector uses match labels to identify the pods that fall under this budget, ensuring that the policy applies only to the pods running the backend service.
 
-4. **Future Enhancements and Recommendations**
+5. **Future Enhancements and Recommendations**
     - **Monitoring and Observability:** Integrating something like Prometheus and Grafana for comprehensive metrics collection and real-time monitoring.
     - **Security Enhancements:** In the current development environment, secrets management is not fully implemented to align with best practices. However, in a production setting, it is crucial to handle secrets more securely. Options for enhancing secrets management include encrypting them with tools like [**Kubeseal**](https://github.com/bitnami-labs/sealed-secrets) or utilizing a dedicated secrets manager.
     - **CI/CD Integration**: Since this project is set up for a development environment, CI/CD pipelines are not currently implemented. However, for seamless deployment in a production setting, integrating CI/CD pipelines would be essential to automate the build, test, and deployment processes.
